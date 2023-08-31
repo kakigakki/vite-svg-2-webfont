@@ -82,19 +82,12 @@ export function viteSvgToWebfont<T extends GeneratedFontTypes = GeneratedFontTyp
             }
             await generate();
             if (isBuild) {
-                let cssFontsUrl: string;
-                if (processedOptions.cssFontsUrl) {
-                    const relativeUrl = relative(processedOptions.dest, processedOptions.cssFontsUrl);
-                    cssFontsUrl = relativeUrl === '' ? '.' : `./${relativeUrl}`;
-                } else {
-                    cssFontsUrl = '/assets';
-                }
-
+                const cssFontsUrl = processedOptions.cssFontsUrl ? relative(processedOptions.dest, processedOptions.cssFontsUrl) : 'assets';
                 const emitted = processedOptions.types.map<[T, string]>(type => [
                     type,
                     `/${this.getFileName(
                         this.emitFile({ type: 'asset', fileName: `assets/${processedOptions.fontName}-${guid()}.${type}`, source: generatedFonts?.[type] }),
-                    )}`.replace('/assets', cssFontsUrl),
+                    ).replace('assets', cssFontsUrl)}`,
                 ]);
                 fileRefs = Object.fromEntries(emitted) as { [Ref in T]: string };
             }
