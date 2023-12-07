@@ -1,7 +1,7 @@
 import { promisify } from 'util';
 import { relative } from 'path';
 import _webfontGenerator from '@vusion/webfonts-generator';
-import { setupWatcher, MIME_TYPES, guid, ensureDirExistsAndWriteFile } from './utils';
+import { setupWatcher, MIME_TYPES, ensureDirExistsAndWriteFile } from './utils';
 import { parseOptions, parseFiles } from './optionParser';
 import type { Plugin, ModuleGraph, ModuleNode } from 'vite';
 import type { GeneratedFontTypes, WebfontsGeneratorResult } from '@vusion/webfonts-generator';
@@ -92,9 +92,10 @@ export function viteSvgToWebfont<T extends GeneratedFontTypes = GeneratedFontTyp
 
                 const emitted = processedOptions.types.map<[T, string]>(type => [
                     type,
-                    `/${this.getFileName(
-                        this.emitFile({ type: 'asset', fileName: `assets/${processedOptions.fontName}-${guid()}.${type}`, source: generatedFonts?.[type] }),
-                    )}`.replace('/assets', cssFontsUrl),
+                    `/${this.getFileName(this.emitFile({ type: 'asset', fileName: `assets/${processedOptions.fontName}.${type}`, source: generatedFonts?.[type] }))}`.replace(
+                        '/assets',
+                        cssFontsUrl,
+                    ),
                 ]);
                 fileRefs = Object.fromEntries(emitted) as { [Ref in T]: string };
             }

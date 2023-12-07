@@ -111,16 +111,14 @@ describe('build', () => {
     });
 
     it.concurrent('injects fonts css to page', async () => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const cssFileName = output.find(({ type, name }) => type === 'asset' && name === 'index.css')!.fileName;
+        const cssFileName = output.find(({ type, name }) => type === 'asset' && name === 'index.css')?.fileName;
         const res = await fetchTextContent(server, `/${cssFileName}`);
         expect(res).toMatch(/^@font-face{font-family:iconfont;/);
     });
 
     types.forEach(type => {
         it.concurrent(`has font of type ${type} available`, async () => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const iconAssetName = output.find(({ fileName }) => fileName.startsWith('assets/iconfont-') && fileName.endsWith(type))!.fileName;
+            const iconAssetName = output.find(({ fileName }) => fileName.startsWith('assets/iconfont') && fileName.endsWith(type))?.fileName;
             const [expected, res] = await Promise.all([loadFileContent(`fonts/iconfont.${type}`, 'buffer'), fetchBufferContent(server, `/${iconAssetName}`)]);
             expect(res).toStrictEqual(expected);
         });
