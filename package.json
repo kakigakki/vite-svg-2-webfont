@@ -69,6 +69,7 @@
     },
     "dependencies": {
         "@vusion/webfonts-generator": "^0.8.0",
-        "glob": "^8.1.0"
+        "glob": "^8.1.0",
+        "jssha": "^3.3.1"
     }
 }

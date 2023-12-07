@@ -1,12 +1,12 @@
 import { promisify } from 'util';
 import { relative } from 'path';
 import _webfontGenerator from '@vusion/webfonts-generator';
-import { setupWatcher, MIME_TYPES, ensureDirExistsAndWriteFile } from './utils';
+import { setupWatcher, MIME_TYPES, ensureDirExistsAndWriteFile, guid } from './utils';
 import { parseOptions, parseFiles } from './optionParser';
 import type { Plugin, ModuleGraph, ModuleNode } from 'vite';
 import type { GeneratedFontTypes, WebfontsGeneratorResult } from '@vusion/webfonts-generator';
 import type { IconPluginOptions } from './optionParser';
-
+import jsSHA from 'jssha';
 const ac = new AbortController();
 const webfontGenerator = promisify(_webfontGenerator);
 const VIRTUAL_MODULE_ID = 'virtual:vite-svg-2-webfont.css';
@@ -90,13 +90,15 @@ export function viteSvgToWebfont<T extends GeneratedFontTypes = GeneratedFontTyp
                     cssFontsUrl = '/assets';
                 }
 
-                const emitted = processedOptions.types.map<[T, string]>(type => [
-                    type,
-                    `/${this.getFileName(this.emitFile({ type: 'asset', fileName: `assets/${processedOptions.fontName}.${type}`, source: generatedFonts?.[type] }))}`.replace(
-                        '/assets',
-                        cssFontsUrl,
-                    ),
-                ]);
+                const emitted = processedOptions.types.map<[T, string]>(type => {
+                    const hash = generatedFonts?.[type] ? new jsSHA('SHA-256', 'UINT8ARRAY').update(generatedFonts[type]).getHash('HEX').substring(0, 8) : guid();
+                    return [
+                        type,
+                        `/${this.getFileName(
+                            this.emitFile({ type: 'asset', fileName: `assets/${processedOptions.fontName}-${hash}.${type}`, source: generatedFonts?.[type] }),
+                        )}`.replace('/assets', cssFontsUrl),
+                    ];
+                });
                 fileRefs = Object.fromEntries(emitted) as { [Ref in T]: string };
             }
         },
